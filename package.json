@@ -29,11 +29,11 @@
     "gulp-load-plugins": "^0.7.0",
     "gulp-mocha": "^1.1.1",
     "gulp-watch": "^0.7.1",
-    "higher-object": "^0.2.3",
     "mocha": "^2.0.1",
     "supertest": "^0.14.0"
   },
   "dependencies": {
+    "higher-object": "^0.2.3",
     "lodash": "^2.4.1"
   }
 }
