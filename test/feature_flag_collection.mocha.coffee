@@ -37,6 +37,18 @@ describe 'FeatureFlagCollections', ->
       }
       expect(featureFlagCollection).to.have.deep.property('flags.check', true)
 
+    it 'fails with a function that does not return boolean', ->
+      expect(->
+        FeatureFlagCollection.generate {
+          context: {
+            test: true
+          }
+          rules: {
+            check: -> return 1
+          }
+        }
+      ).to.throw("rule 'check' returned non-boolean")
+
   describe '#constructor', ->
     it 'generates a FeatureFlagCollection instance without arguments', ->
       featureFlagCollection = new FeatureFlagCollection()
@@ -51,6 +63,11 @@ describe 'FeatureFlagCollections', ->
       expect(featureFlagCollection).to.have.property('flags').that.deep.equals({
         a: true
       })
+
+    it 'fails with non-boolean values in the flag object', ->
+      expect(->
+        featureFlagCollection = new FeatureFlagCollection({ flags: { a: 1 } })
+      ).to.throw("'a' is not a boolean")
 
   describe '#get', ->
     featureFlagCollection = null

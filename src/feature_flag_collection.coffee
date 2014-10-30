@@ -7,6 +7,8 @@ class FeatureFlagCollection
 
     for k, v of rules
       flags[k] = v(context)
+      if typeof flags[k] isnt 'boolean'
+        throw new Error("rule '#{k}' returned non-boolean")
 
     return new FeatureFlagCollection({flags})
 
@@ -19,6 +21,8 @@ class FeatureFlagCollection
   constructor: (args) ->
     @flags = args?.flags ? {}
     throw new Error('flags should be an object') if typeof @flags isnt 'object'
+    for k, v of @flags
+      throw new Error("'#{k}' is not a boolean") if typeof v isnt 'boolean'
 
   valueOf: ->
     return {
