@@ -68,6 +68,9 @@ callback's first argument is `error` and second argument is `rules`. `rules` hav
 
 ## Changelog
 
+### v0.1.3
+- Added stricter type checking to FeatureFlagCollection
+
 ### v0.1.0
 - Initial release
 
