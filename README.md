@@ -33,9 +33,7 @@ app.use(require('express-feature-flag')({
         rules[rule.name] = parseRuleSpec(rule.rule);
       }
 
-      callback(null, {
-        rules: rules
-      });
+      callback(null, rules);
     })
   }
 })); // returns a middleware function
