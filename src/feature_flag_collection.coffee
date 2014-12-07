@@ -2,47 +2,71 @@ _ = require 'lodash'
 { isInstanceOf } = require 'higher-object/build/index'
 
 class FeatureFlagCollection
-  @generate: ({rules, context}) ->
-    flags = {}
-
-    for k, v of rules
-      flags[k] = v(context)
-      if typeof flags[k] isnt 'boolean'
-        throw new Error("rule '#{k}' returned non-boolean")
-
-    return new FeatureFlagCollection({flags})
-
   @isFeatureFlagCollection: (candidate) ->
     return isInstanceOf(candidate, FeatureFlagCollection)
 
-  @fromJS: ({flags}) ->
-    return new FeatureFlagCollection({flags})
+  @fromJS: ({rules, context}) ->
+    return new FeatureFlagCollection({rules, context})
 
   constructor: (args) ->
-    @flags = args?.flags ? {}
-    throw new Error('flags should be an object') if typeof @flags isnt 'object'
-    for k, v of @flags
-      throw new Error("'#{k}' is not a boolean") if typeof v isnt 'boolean'
+    throw new Error('needs rules and context') if not args
+    {@rules, @context} = args
+    throw new Error('needs rules') if not @rules
+    throw new Error('rules should be an object') if typeof @rules isnt 'object'
+    for ruleName, rule of @rules
+      throw new Error("rule #{ruleName} should be a function") if typeof rule isnt 'function'
+
+    throw new Error('needs context') if not @context
+    throw new Error('context should be an object') if typeof @context isnt 'object'
+
+    @_cache = {}
 
   valueOf: ->
     return {
-      @flags
+      @rules
+      @context
     }
 
   toJS: ->
     return @valueOf()
 
   toJSON: ->
-    return @toJS()
+    return {
+      @rules
+      @context
+    }
 
   toString: ->
     return '[FeatureFlagCollection]'
 
   equals: (candidate) ->
     return false unless FeatureFlagCollection.isFeatureFlagCollection(candidate)
-    return _.isEqual(candidate.flags, @flags)
+    return false unless _.isEqual(Object.keys(candidate.rules), Object.keys(@rules))
+    for ruleName, rule of candidate.rules
+      return false if candidate.get(ruleName) isnt @get(ruleName)
+    return true
 
   get: (name) ->
-    return @flags[name] ? false
+    return @_cache[name] if @_cache[name]?
+    if not @rules[name]
+      return false
+    else
+      return @_cache[name] = @rules[name](@context)
+
+  getAll: ->
+    for k, v of @rules
+      @_cache[k] = v(@context) if not @_cache[k]?
+
+    result = {}
+    result[k] = v for k, v of @_cache
+    return result
+
+  setContext: (context) ->
+    @context = context
+    @_cache = {}
+    return true
+
+  getContext: -> return @context
+
 
 module.exports = FeatureFlagCollection

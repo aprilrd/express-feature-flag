@@ -29,7 +29,7 @@ describe 'FeatureFlag middleware', ->
           return
       } )
       app.get('/', (req, res) ->
-        res.status(200).json(req._featureFlags)
+        res.status(200).json(req._featureFlags.getAll())
       )
 
     it 'correctly gets false flag for req._featureFlags', (done) ->
@@ -41,7 +41,7 @@ describe 'FeatureFlag middleware', ->
         .expect(200)
         .end((err, res) ->
           expect(err).not.to.exist
-          expect(res.body.flags).to.have.property('test', false)
+          expect(res.body).to.have.property('test', false)
           done()
         )
 
@@ -54,7 +54,7 @@ describe 'FeatureFlag middleware', ->
         .expect(200)
         .end((err, res) ->
           expect(err).not.to.exist
-          expect(res.body.flags).to.have.property('test', true)
+          expect(res.body).to.have.property('test', true)
           done()
         )
 
@@ -84,7 +84,7 @@ describe 'FeatureFlag middleware', ->
           return
       } )
       app.get('/', (req, res) ->
-        res.status(200).json(req._featureFlags)
+        res.status(200).json(req._featureFlags.getAll())
       )
 
     it 'correctly gets false flag for req._featureFlags', (done) ->
@@ -96,7 +96,7 @@ describe 'FeatureFlag middleware', ->
         .expect(200)
         .end((err, res) ->
           expect(err).not.to.exist
-          expect(res.body.flags).to.have.property('percentage', false)
+          expect(res.body).to.have.property('percentage', false)
           done()
         )
 
@@ -109,6 +109,6 @@ describe 'FeatureFlag middleware', ->
         .expect(200)
         .end((err, res) ->
           expect(err).not.to.exist
-          expect(res.body.flags).to.have.property('percentage', true)
+          expect(res.body).to.have.property('percentage', true)
           done()
         )

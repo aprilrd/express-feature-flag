@@ -21,7 +21,7 @@ module.exports = ->
           next(err)
           return
 
-        req._featureFlags = FeatureFlagCollection.generate({
+        req._featureFlags = new FeatureFlagCollection({
           rules
           context
         })

@@ -7,17 +7,16 @@ testHigherObjects = HigherObjectTesterModule.testHigherObjects
 
 testFeatureFlagCollections = [
   {
-    flags: {
-      a: true
-      b: false
-      c: false
+    rules: {
+      check: -> return true
     }
+    context: {}
   }
   {
-    flags: {
-      a: true
-      b: false
+    rules: {
+      check: -> return false
     }
+    context: {}
   }
 ]
 
@@ -25,58 +24,65 @@ describe 'FeatureFlagCollections', ->
   it 'passes higher object tests', ->
     testHigherObjects(FeatureFlagCollection, testFeatureFlagCollections)
 
-  describe 'generate', ->
-    it 'properly generates a FeatureFlagCollection instance', ->
-      featureFlagCollection = FeatureFlagCollection.generate {
+  # describe 'generate', ->
+  #   it 'properly generates a FeatureFlagCollection instance', ->
+  #     featureFlagCollection = FeatureFlagCollection.generate {
+  #       context: {
+  #         test: true
+  #       }
+  #       rules: {
+  #         check: -> return true
+  #       }
+  #     }
+  #     expect(featureFlagCollection).to.have.deep.property('flags.check', true)
+
+  #   it 'fails with a function that does not return boolean', ->
+  #     expect(->
+  #       FeatureFlagCollection.generate {
+  #         context: {
+  #           test: true
+  #         }
+  #         rules: {
+  #           check: -> return 1
+  #         }
+  #       }
+  #     ).to.throw("rule 'check' returned non-boolean")
+
+  describe '#constructor', ->
+    it 'throws an error without arguments', ->
+      expect(->
+        featureFlagCollection = new FeatureFlagCollection()
+      ).to.throw('needs rules and context')
+
+    it 'throws an error with empty object', ->
+      expect(->
+        featureFlagCollection = new FeatureFlagCollection({})
+      ).to.throw('needs rules')
+
+    it 'generates a FeatureFlagCollection instance with the given flag object', ->
+      featureFlagCollection = new FeatureFlagCollection({
         context: {
           test: true
         }
         rules: {
-          check: -> return true
+          check: -> return 1
+          test: (context) -> return context.test
         }
-      }
-      expect(featureFlagCollection).to.have.deep.property('flags.check', true)
-
-    it 'fails with a function that does not return boolean', ->
-      expect(->
-        FeatureFlagCollection.generate {
-          context: {
-            test: true
-          }
-          rules: {
-            check: -> return 1
-          }
-        }
-      ).to.throw("rule 'check' returned non-boolean")
-
-  describe '#constructor', ->
-    it 'generates a FeatureFlagCollection instance without arguments', ->
-      featureFlagCollection = new FeatureFlagCollection()
-      expect(featureFlagCollection).to.have.property('flags').that.deep.equals({})
-
-    it 'generates a FeatureFlagCollection instance with empty object', ->
-      featureFlagCollection = new FeatureFlagCollection({})
-      expect(featureFlagCollection).to.have.property('flags').that.deep.equals({})
-
-    it 'generates a FeatureFlagCollection instance with the given flag object', ->
-      featureFlagCollection = new FeatureFlagCollection({ flags: { a: true } })
-      expect(featureFlagCollection).to.have.property('flags').that.deep.equals({
-        a: true
       })
+      expect(featureFlagCollection.get('check')).to.equal(1)
+      expect(featureFlagCollection.get('test')).to.be.equal
 
-    it 'fails with non-boolean values in the flag object', ->
-      expect(->
-        featureFlagCollection = new FeatureFlagCollection({ flags: { a: 1 } })
-      ).to.throw("'a' is not a boolean")
 
   describe '#get', ->
     featureFlagCollection = null
 
-    before ->
+    beforeEach ->
       featureFlagCollection = new FeatureFlagCollection({
-        flags: {
-          a: true
-          b: false
+        context: {
+          test: true
+        }
+        rules: {
+          a: (context) -> return context.test
         }
       })
 
@@ -88,3 +94,9 @@ describe 'FeatureFlagCollections', ->
 
     it 'returns false for the undefined feature', ->
       expect(featureFlagCollection.get('c')).to.be.false
+
+    it 'does lazy evaluation', ->
+      expect(featureFlagCollection.get('a')).to.be.true
+      featureFlagCollection.setContext({ test: false })
+      expect(featureFlagCollection.get('a')).to.be.false
+
