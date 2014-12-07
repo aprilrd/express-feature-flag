@@ -1,6 +1,6 @@
 {
   "name": "express-feature-flag",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Feature Flag system as a Express middleware",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,10 @@
     "url": "https://github.com/aprilrd/express-feature-flag"
   },
   "keywords": [
-    "express", "feature", "feature-toggle", "feature-flag"
+    "express",
+    "feature",
+    "feature-toggle",
+    "feature-flag"
   ],
   "author": "Young",
   "license": "ISC",
