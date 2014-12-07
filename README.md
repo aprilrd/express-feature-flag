@@ -66,6 +66,10 @@ callback's first argument is `error` and second argument is `rules`. `rules` hav
 
 ## Changelog
 
+### v0.2.0
+- Context can be updated after the initial instantiation.
+- Flags are now evaluated lazily.
+
 ### v0.1.3
 - Added stricter type checking to FeatureFlagCollection
 
